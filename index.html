@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OSN Mathematics Hub — V1.5</title>
+<style>
+:root{
+  --bg:#0a0e14; --surf:#111826; --surf2:#161f30; --line:#232f45;
+  --text:#e7edf6; --muted:#8492a6; --accent:#4fd1c5; --warn:#f0b429; --bad:#f0616d;
+  font-size:16px;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif;}
+body{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:40px 40px;background-attachment:fixed;background-position:center;}
+h1,h2,h3{font-family:'JetBrains Mono',ui-monospace,monospace;font-weight:600;letter-spacing:-.02em;margin:0 0 .5em}
+a{color:inherit}
+.wrap{max-width:1000px;margin:0 auto;padding:24px 20px 80px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(10,14,20,.92);backdrop-filter:blur(6px);z-index:10;overflow-x:auto}
+.brand{font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:4px;flex-wrap:nowrap}
+nav button{background:none;border:1px solid transparent;color:var(--muted);padding:7px 10px;border-radius:6px;font-size:.82rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+nav button.on{color:var(--text);border-color:var(--line);background:var(--surf)}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px}
+.btn{background:var(--accent);color:#05201c;border:none;padding:11px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.92rem}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
+.btn.sm{padding:6px 12px;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:820px){.grid4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.grid4{grid-template-columns:1fr}nav{gap:2px}.top{padding:10px 12px}table{display:block;overflow-x:auto;white-space:nowrap}.wrap{padding-left:12px;padding-right:12px}.card{padding:15px}}
+.bar{height:10px;background:var(--surf2);border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.muted{color:var(--muted);font-size:.88rem}
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.node{border:1px solid var(--line);border-left:3px solid var(--muted);background:var(--surf);border-radius:8px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.node.MASTERED{border-left-color:var(--accent)}
+.node.IN_PROGRESS{border-left-color:var(--warn)}
+.node.LOCKED{opacity:.55}
+.opt{display:block;width:100%;text-align:left;background:var(--surf2);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:7px;margin-bottom:8px;cursor:pointer;font-family:inherit;font-size:.95rem}
+.opt:hover{border-color:var(--accent)}
+.opt.correct{border-color:var(--accent);background:#0f2622}
+.opt.wrong{border-color:var(--bad);background:#2a1216}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+table{width:100%;border-collapse:collapse;font-size:.85rem} .learn-step{border-left:2px solid var(--accent);padding-left:12px;margin:12px 0}
+td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+input[type=text]{width:100%;background:var(--surf2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:7px;font-family:inherit}
+::-webkit-scrollbar{height:6px;width:6px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
+/* ---------- V1.5 UX ---------- */
+.focus-card{border-left:3px solid var(--accent);background:linear-gradient(90deg,rgba(79,209,197,.08),var(--surf))}
+.focus-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+.focus-number{font-family:'JetBrains Mono',monospace;font-size:1.45rem;color:var(--accent)}
+.path-chain{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:6px 2px 12px}
+.path-step{min-width:145px;background:var(--surf2);border:1px solid var(--line);border-radius:9px;padding:12px;cursor:pointer}
+.path-step:hover{border-color:var(--accent)}
+.path-arrow{display:flex;align-items:center;padding:0 7px;color:var(--muted)}
+.strategy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.strategy-item{background:var(--surf2);border:1px solid var(--line);border-radius:9px;padding:14px;cursor:pointer}
+.strategy-item:hover{border-color:var(--accent)}
+.tag{display:inline-block;padding:3px 7px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:.72rem;margin:2px 3px 2px 0}
+.next-action{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:680px){.focus-grid,.strategy-grid{grid-template-columns:1fr}.path-step{min-width:132px}}
+
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">OSN <span>Math</span> Hub</div>
+  <nav id="nav"></nav>
+</div>
+<div class="wrap" id="app"></div>
+<script>
+/* ---------- DATA ---------- */
+const TOPICS=["numberTheory","algebra","geometry","combinatorics"];
+const TOPIC_LABEL={numberTheory:"Number Theory",algebra:"Algebra",geometry:"Geometry",combinatorics:"Combinatorics"};
+
+const CONCEPTS=[
+ {id:"bil-bulat",topic:"numberTheory",title:"Bilangan Bulat",order:1,
+  learn:"Mulai dari mengenali jenis bilangan dan bagaimana bilangan positif, negatif, dan nol bekerja.",
+  intuition:"Bayangkan garis bilangan. Bergerak ke kanan berarti nilainya bertambah, ke kiri berarti berkurang.",
+  def:"Bilangan bulat adalah ℤ={...,−2,−1,0,1,2,...}. Bilangan ini tidak memiliki bagian pecahan atau desimal.",
+  example:"−7+12=5. Dari −7 bergerak 12 langkah ke kanan sampai 5.",
+  pattern:"Perhatikan pola genap dan ganjil. Genap+genap=genap, ganjil+ganjil=genap, dan genap+ganjil=ganjil.",
+  mistake:"Menganggap 0 positif atau negatif. Dalam bilangan bulat, 0 bukan positif dan bukan negatif.",
+  osn:"Sifat genap-ganjil dan operasi bilangan bulat sering menjadi langkah awal pembuktian OSN.",
+  quiz:{q:"Manakah yang BUKAN bilangan bulat?",opts:["−5","0","3,5","100"],ans:2,exp:"3,5 memiliki bagian desimal, sehingga bukan anggota ℤ."}},
+ {id:"faktor-kelipatan",topic:"numberTheory",title:"Faktor & Kelipatan",order:2,
+  learn:"Pahami hubungan 'membagi' dan 'dikali'. Ini menjadi fondasi FPB, KPK, dan faktorisasi.",
+  intuition:"Faktor adalah bilangan yang bisa membagi habis. Kelipatan adalah hasil mengalikan suatu bilangan dengan bilangan bulat.",
+  def:"b adalah faktor a jika a=b·k untuk suatu bilangan bulat k.",
+  example:"Faktor positif 12 adalah 1,2,3,4,6,12. Kelipatan 4 adalah 4,8,12,16,...",
+  pattern:"Jika kamu sudah bisa mencari faktor, kamu akan lebih mudah memahami FPB, KPK, dan banyaknya faktor.",
+  mistake:"Mencampur istilah faktor dan kelipatan. Ingat: 3 faktor dari 12, sedangkan 12 kelipatan dari 3.",
+  osn:"Banyak soal Number Theory meminta kita mencari atau membatasi faktor suatu bilangan.",
+  quiz:{q:"Berapa banyak faktor positif dari 18?",opts:["4","5","6","9"],ans:2,exp:"18 memiliki faktor 1,2,3,6,9,18, jadi ada 6 faktor."}},
+ {id:"fpb-kpk",topic:"numberTheory",title:"FPB & KPK",order:3,
+  learn:"Sekarang gabungkan konsep faktor dan kelipatan untuk mencari pembagi bersama terbesar dan kelipatan bersama terkecil.",
+  intuition:"FPB mencari 'pembagi bersama paling besar'. KPK mencari 'kelipatan bersama paling kecil'.",
+  def:"FPB(a,b) adalah bilangan terbesar yang membagi a dan b. KPK(a,b) adalah bilangan positif terkecil yang habis dibagi a dan b.",
+  example:"FPB(12,18)=6 dan KPK(12,18)=36.",
+  pattern:"Dengan faktorisasi prima, FPB mengambil pangkat terkecil dan KPK mengambil pangkat terbesar dari prima yang relevan.",
+  mistake:"Menukar pangkat terkecil dan terbesar saat mencari FPB/KPK.",
+  osn:"FPB dan KPK sering muncul dalam soal pembagian, periode berulang, serta persamaan bilangan bulat.",
+  quiz:{q:"FPB(24,36)=?",opts:["6","8","12","18"],ans:2,exp:"24=2³·3 dan 36=2²·3². Pangkat terkecil memberi 2²·3=12."}},
+ {id:"bil-prima",topic:"numberTheory",title:"Bilangan Prima",order:4,
+  learn:"Kenali 'blok penyusun' bilangan bulat sebelum masuk ke faktorisasi prima.",
+  intuition:"Bilangan prima seperti blok dasar: faktor positifnya hanya 1 dan dirinya sendiri.",
+  def:"Bilangan p>1 disebut prima jika faktor positifnya hanya 1 dan p.",
+  example:"2,3,5,7,11,13,... adalah bilangan prima. 2 adalah satu-satunya prima genap.",
+  pattern:"Untuk mengecek apakah n prima, cukup mencoba pembagi prima hingga √n.",
+  mistake:"Menganggap 1 sebagai prima. 1 hanya punya satu faktor positif.",
+  osn:"Sifat bilangan prima menjadi dasar faktorisasi, divisibility, modulo, dan banyak pembuktian.",
+  quiz:{q:"Manakah yang merupakan bilangan prima?",opts:["21","27","31","33"],ans:2,exp:"31 hanya memiliki faktor positif 1 dan 31."}},
+ {id:"faktorisasi",topic:"numberTheory",title:"Faktorisasi Prima",order:5,
+  learn:"Pecah sebuah bilangan menjadi perkalian bilangan prima. Ini adalah alat penting untuk banyak soal Number Theory.",
+  intuition:"Anggap faktorisasi prima sebagai 'sidik jari' sebuah bilangan: susunan prima penyusunnya unik.",
+  def:"Setiap n>1 dapat ditulis secara unik sebagai hasil kali pangkat bilangan prima.",
+  example:"360=2³·3²·5.",
+  pattern:"Jika n=p₁^a¹·p₂^a²·..., banyak faktor positif n adalah (a¹+1)(a²+1)...",
+  mistake:"Berhenti terlalu cepat saat membagi. Pastikan semua faktor yang tersisa sudah prima.",
+  osn:"Faktorisasi menjadi dasar menghitung faktor, FPB/KPK, dan menyusun pembuktian divisibility.",
+  quiz:{q:"Faktorisasi prima 84 adalah?",opts:["2²·3·7","2·3²·7","2²·21","4·3·7"],ans:0,exp:"84=4·21=2²·3·7."}},
+ {id:"divisibility",topic:"numberTheory",title:"Habis Dibagi (Divisibility)",order:6,
+  learn:"Belajar membaca simbol a|b dan menggunakan aturan habis dibagi tanpa menghitung pembagian panjang.",
+  intuition:"Daripada membagi angka besar, kita cari ciri yang langsung menunjukkan apakah pembagian akan bersisa 0.",
+  def:"a|b berarti ada bilangan bulat k sehingga b=a·k.",
+  example:"723 habis dibagi 3 karena 7+2+3=12 dan 12 habis dibagi 3.",
+  pattern:"Aturan 3 dan 9 memakai jumlah digit; aturan 4 dan 8 melihat beberapa digit terakhir; aturan 11 memakai selisih jumlah digit berselang.",
+  mistake:"Menggunakan aturan divisibility tanpa memastikan aturan itu memang berlaku untuk pembagi yang dimaksud.",
+  osn:"Pembuktian bahwa suatu bentuk bilangan selalu habis dibagi k merupakan tipe soal dasar OSN.",
+  quiz:{q:"Apakah 2464 habis dibagi 8?",opts:["Ya, karena 464 habis dibagi 8","Tidak","Ya, karena digit terakhir genap","Tidak cukup informasi"],ans:0,exp:"Cukup periksa tiga digit terakhir: 464=8·58."}},
+ {id:"modulo",topic:"numberTheory",title:"Modulo",order:7,
+  learn:"Mulai melihat bilangan berdasarkan sisanya. Ini adalah pintu masuk ke banyak trik OSN.",
+  intuition:"Bayangkan jam. Setelah mencapai angka terakhir, kita kembali ke awal. Modulo bekerja dengan ide siklus seperti itu.",
+  def:"a mod n adalah sisa pembagian a oleh n, dengan 0≤a mod n<n untuk n>0.",
+  example:"17 mod 5=2 karena 17=3·5+2.",
+  pattern:"Kita boleh mereduksi bilangan sebelum menghitung: (a+b) mod n=((a mod n)+(b mod n)) mod n.",
+  mistake:"Mencampur simbol 'mod' sebagai operasi sisa dengan '≡' sebagai hubungan kongruensi.",
+  osn:"Modulo sangat berguna untuk digit terakhir, pola pangkat, dan soal divisibility.",
+  quiz:{q:"(23+19) mod 7=?",opts:["0","2","3","4"],ans:0,exp:"23+19=42 dan 42 mod 7=0."}},
+ {id:"kongruensi",topic:"numberTheory",title:"Kongruensi",order:8,
+  learn:"Naik satu tingkat dari modulo: kita tidak hanya mencari sisa, tetapi membandingkan dua bilangan berdasarkan modulus yang sama.",
+  intuition:"Dua bilangan kongruen jika keduanya 'mendarat di posisi yang sama' setelah dibagi oleh modulus.",
+  def:"a≡b (mod n) berarti n membagi a−b.",
+  example:"17≡2 (mod 5) karena 17−2=15 habis dibagi 5.",
+  pattern:"Jika a≡b (mod n), operasi penjumlahan, pengurangan, dan perkalian dapat dilakukan pada kedua ruas.",
+  mistake:"Membagi kongruensi sembarangan. Pembagian memiliki syarat tambahan yang perlu diperhatikan.",
+  osn:"Kongruensi menjadi alat utama untuk pola pangkat, sisa pembagian, dan beberapa pembuktian.",
+  quiz:{q:"Apakah 25≡4 (mod 7) benar?",opts:["Benar","Salah"],ans:0,exp:"25−4=21 dan 21 habis dibagi 7."}},
+ {id:"diophantine",topic:"numberTheory",title:"Persamaan Diophantine",order:9,
+  learn:"Gunakan divisibility dan FPB untuk menyelesaikan persamaan yang solusinya harus bilangan bulat.",
+  intuition:"Kamu tidak mencari sembarang titik pada garis, tetapi hanya titik yang koordinatnya bilangan bulat.",
+  def:"Persamaan seperti ax+by=c disebut linear Diophantine jika x dan y dicari dalam bilangan bulat.",
+  example:"3x+5y=1 memiliki solusi bulat karena FPB(3,5)=1 membagi 1.",
+  pattern:"ax+by=c mempunyai solusi bulat jika dan hanya jika FPB(a,b) membagi c.",
+  mistake:"Langsung mencari x,y tanpa mengecek syarat FPB terlebih dahulu.",
+  osn:"Soal Diophantine sering ditambah syarat x,y positif atau berada pada interval tertentu.",
+  quiz:{q:"2x+4y=7 punya solusi bulat?",opts:["Ya","Tidak, karena FPB(2,4)=2 tidak membagi 7"],ans:1,exp:"FPB(2,4)=2, tetapi 2 tidak membagi 7. Jadi tidak ada solusi bulat."}},
+
+ {id:"al-persamaan",topic:"algebra",title:"Persamaan & Manipulasi Aljabar",order:1,
+  learn:"Bangun kemampuan mengubah bentuk persamaan tanpa mengubah nilai yang dicari.",
+  intuition:"Persamaan seperti timbangan: apa pun yang kamu lakukan pada satu sisi harus tetap dilakukan pada sisi lainnya.",
+  def:"Persamaan menyatakan dua bentuk memiliki nilai yang sama. Operasi yang setara mempertahankan himpunan solusi.",
+  example:"2x+5=17 → 2x=12 → x=6.",
+  pattern:"Sederhanakan bentuk, kumpulkan suku sejenis, lalu isolasi variabel.",
+  mistake:"Melakukan operasi pada satu ruas saja.",
+  osn:"Manipulasi aljabar adalah alat dasar sebelum masuk ke identitas, polinomial, dan inequality.",
+  quiz:{q:"Jika 3x−4=11, nilai x adalah?",opts:["3","4","5","6"],ans:2,exp:"Tambah 4: 3x=15, lalu bagi 3: x=5."}},
+ {id:"al-faktorisasi",topic:"algebra",title:"Faktorisasi Aljabar",order:2,
+  learn:"Belajar melihat bentuk aljabar sebagai hasil perkalian beberapa faktor.",
+  intuition:"Seperti 12=3·4, bentuk x²−9 juga bisa dipecah menjadi faktor: (x−3)(x+3).",
+  def:"Faktorisasi adalah menulis suatu bentuk aljabar sebagai hasil kali faktor-faktornya.",
+  example:"x²−9=(x−3)(x+3).",
+  pattern:"Kenali selisih kuadrat, kuadrat sempurna, dan faktor persekutuan.",
+  mistake:"Salah tanda ketika mengembangkan kembali hasil faktorisasi.",
+  osn:"Faktorisasi sering menyederhanakan persamaan dan membuka struktur tersembunyi.",
+  quiz:{q:"Faktorisasi x²−16 adalah?",opts:["(x−4)(x+4)","(x−8)(x+2)","(x−4)²","(x+4)²"],ans:0,exp:"Ini bentuk selisih kuadrat: x²−4²=(x−4)(x+4)."}},
+ {id:"al-inequality",topic:"algebra",title:"Inequality",order:3,
+  learn:"Pahami cara membandingkan nilai dan kapan tanda pertidaksamaan berubah.",
+  intuition:"Pertidaksamaan tidak mencari satu titik saja; kita mencari wilayah nilai yang memenuhi kondisi.",
+  def:"Inequality menggunakan simbol <, >, ≤, atau ≥ untuk membandingkan dua ekspresi.",
+  example:"2x<8 → x<4. Jika dikali −1, arah tanda berubah.",
+  pattern:"Tanda inequality berubah saat kedua ruas dikalikan atau dibagi bilangan negatif.",
+  mistake:"Lupa membalik tanda setelah operasi dengan bilangan negatif.",
+  osn:"Inequality sering digabung dengan manipulasi aljabar dan pembuktian.",
+  quiz:{q:"Jika −2x>6, maka?",opts:["x>−3","x<−3","x>3","x<3"],ans:1,exp:"Bagi dengan −2, tanda berbalik: x<−3."}},
+ {id:"al-sequence",topic:"algebra",title:"Barisan & Pola",order:4,
+  learn:"Belajar menemukan aturan yang menghasilkan suku-suku suatu barisan.",
+  intuition:"Barisan bukan sekadar daftar angka; cari aturan yang menghubungkan satu suku dengan suku berikutnya.",
+  def:"Barisan adalah urutan bilangan yang memiliki aturan tertentu untuk menentukan suku-sukunya.",
+  example:"2,5,8,11,... memiliki beda tetap 3.",
+  pattern:"Untuk barisan aritmetika, suku ke-n dapat ditulis aₙ=a₁+(n−1)d.",
+  mistake:"Menganggap semua barisan memiliki beda tetap.",
+  osn:"Soal OSN sering menyembunyikan pola yang harus ditemukan sebelum rumus dipakai.",
+  quiz:{q:"Suku ke-5 dari 2,5,8,11,... adalah?",opts:["12","13","14","15"],ans:2,exp:"Beda=3, sehingga suku ke-5=2+4·3=14."}},
+ {id:"al-polynomial",topic:"algebra",title:"Polinomial & Identitas",order:5,
+  learn:"Kenali struktur polinomial dan identitas yang bisa digunakan untuk menyederhanakan perhitungan.",
+  intuition:"Identitas adalah pola yang selalu benar untuk nilai variabel yang memenuhi domainnya.",
+  def:"Polinomial adalah bentuk seperti aₙxⁿ+...+a₁x+a₀ dengan pangkat variabel bilangan bulat nonnegatif.",
+  example:"(x+y)²=x²+2xy+y².",
+  pattern:"Kenali identitas dasar agar tidak selalu melakukan perkalian panjang.",
+  mistake:"Mengira (x+y)²=x²+y² dan lupa suku tengah 2xy.",
+  osn:"Identitas sering menjadi langkah cepat dalam pembuktian aljabar.",
+  quiz:{q:"(x+3)² sama dengan?",opts:["x²+9","x²+3x+9","x²+6x+9","x²+6x+3"],ans:2,exp:"Gunakan (a+b)²=a²+2ab+b²."}},
+
+ {id:"ge-sudut",topic:"geometry",title:"Sudut & Garis",order:1,
+  learn:"Mulai dari hubungan sudut karena banyak pembuktian geometri dibangun dari sini.",
+  intuition:"Sudut dapat dipandang sebagai perubahan arah. Hubungan antar garis menghasilkan pola sudut tertentu.",
+  def:"Sudut adalah besar rotasi antara dua sinar yang bertemu pada satu titik.",
+  example:"Sudut pada satu garis lurus berjumlah 180°.",
+  pattern:"Sudut bertolak belakang sama besar; sudut sehadap dan dalam berseberangan berkaitan saat garis sejajar dipotong transversal.",
+  mistake:"Menganggap semua sudut yang tampak berdekatan otomatis sama besar.",
+  osn:"Hubungan sudut sering menjadi langkah pertama untuk menemukan kesamaan atau bentuk segitiga.",
+  quiz:{q:"Jumlah sudut pada satu garis lurus adalah?",opts:["90°","180°","270°","360°"],ans:1,exp:"Sudut lurus besarnya 180°."}},
+ {id:"ge-segitiga",topic:"geometry",title:"Segitiga",order:2,
+  learn:"Kuasai struktur segitiga sebelum masuk ke Pythagoras, kesebangunan, dan pembuktian.",
+  intuition:"Segitiga adalah bentuk paling dasar dalam banyak konfigurasi geometri.",
+  def:"Jumlah ketiga sudut dalam segitiga selalu 180°.",
+  example:"Segitiga siku-siku dengan sisi 6 dan 8 memiliki sisi miring 10.",
+  pattern:"Kenali segitiga siku-siku, sama kaki, sama sisi, serta hubungan sisi-sudut.",
+  mistake:"Menggunakan Pythagoras pada segitiga yang bukan siku-siku.",
+  osn:"Segitiga muncul hampir di semua bagian geometri OSN.",
+  quiz:{q:"Segitiga siku-siku memiliki kaki 6 dan 8. Sisi miringnya?",opts:["9","10","12","14"],ans:1,exp:"6²+8²=36+64=100, jadi sisi miring=10."}},
+ {id:"ge-lingkaran",topic:"geometry",title:"Lingkaran",order:3,
+  learn:"Pahami hubungan sudut, busur, tali busur, dan jari-jari.",
+  intuition:"Banyak soal lingkaran menjadi lebih mudah jika kamu melihat hubungan sudut dengan busur yang dihadapinya.",
+  def:"Lingkaran adalah himpunan titik yang berjarak sama dari pusat.",
+  example:"Sudut keliling yang menghadap busur yang sama besarnya setengah sudut pusat.",
+  pattern:"Sudut pusat=2×sudut keliling untuk busur yang sama.",
+  mistake:"Menyamakan sudut pusat dan sudut keliling.",
+  osn:"Teorema lingkaran sering digabung dengan segitiga dan kesebangunan.",
+  quiz:{q:"Sudut pusat 80°. Sudut keliling yang menghadap busur sama?",opts:["20°","40°","80°","160°"],ans:1,exp:"Sudut keliling=½ sudut pusat=40°."}},
+ {id:"ge-kesebangunan",topic:"geometry",title:"Kesebangunan & Perbandingan",order:4,
+  learn:"Belajar mengenali bentuk yang sama secara skala dan menggunakan perbandingan sisi.",
+  intuition:"Dua bentuk sebangun punya bentuk sama, tetapi ukurannya bisa berbeda.",
+  def:"Bangun sebangun memiliki sudut bersesuaian sama dan sisi bersesuaian memiliki rasio yang sama.",
+  example:"Jika rasio sisi dua segitiga adalah 2:3, semua sisi bersesuaian mengikuti rasio tersebut.",
+  pattern:"Cari sudut yang sama untuk menemukan pasangan sisi bersesuaian.",
+  mistake:"Membandingkan sisi yang tidak bersesuaian.",
+  osn:"Kesebangunan sangat berguna untuk menemukan panjang yang tidak diketahui.",
+  quiz:{q:"Dua segitiga sebangun memiliki rasio sisi 2:3. Jika sisi kecil 8, sisi bersesuaiannya?",opts:["10","12","14","16"],ans:1,exp:"8/ x =2/3 sehingga x=12."}},
+ {id:"ge-transformasi",topic:"geometry",title:"Transformasi & Simetri",order:5,
+  learn:"Gunakan simetri dan transformasi untuk melihat konfigurasi dari sudut pandang yang lebih sederhana.",
+  intuition:"Kadang gambar sulit dilihat langsung; memindahkan atau mencerminkan bagian gambar bisa membuat hubungan menjadi jelas.",
+  def:"Transformasi mencakup translasi, rotasi, refleksi, dan dilatasi.",
+  example:"Refleksi terhadap sumbu-y mengubah (x,y) menjadi (−x,y).",
+  pattern:"Simetri dapat menunjukkan panjang atau sudut yang sama tanpa menghitung semuanya.",
+  mistake:"Salah menentukan pusat rotasi atau garis refleksi.",
+  osn:"Simetri dan transformasi sering menjadi strategi pembuktian, bukan sekadar materi koordinat.",
+  quiz:{q:"Refleksi titik (3,−2) terhadap sumbu-y menghasilkan?",opts:["(−3,−2)","(3,2)","(−3,2)","(2,−3)"],ans:0,exp:"Refleksi terhadap sumbu-y mengubah x menjadi −x, sedangkan y tetap."}},
+
+ {id:"co-counting",topic:"combinatorics",title:"Prinsip Pencacahan",order:1,
+  learn:"Mulai dari pertanyaan paling dasar: berapa banyak kemungkinan yang tersedia?",
+  intuition:"Jika pilihan tahap pertama punya a cara dan tahap kedua punya b cara untuk setiap pilihan pertama, totalnya a·b.",
+  def:"Aturan perkalian menghitung proses bertahap; aturan penjumlahan menghitung pilihan yang saling terpisah.",
+  example:"3 pilihan baju dan 2 pilihan celana memberi 3·2=6 kombinasi pakaian.",
+  pattern:"Pisahkan proses menjadi tahap-tahap sebelum menghitung.",
+  mistake:"Mengalikan ketika pilihan sebenarnya saling eksklusif, atau menjumlahkan ketika prosesnya bertahap.",
+  osn:"Hampir semua combinatorics membutuhkan kemampuan memecah kasus dengan rapi.",
+  quiz:{q:"Ada 3 pilihan baju dan 2 pilihan celana. Banyak pasangan pakaian?",opts:["5","6","8","9"],ans:1,exp:"Setiap 3 baju dapat dipasangkan dengan 2 celana: 3·2=6."}},
+ {id:"co-permutasi",topic:"combinatorics",title:"Permutasi",order:2,
+  learn:"Pelajari pencacahan ketika urutan objek penting.",
+  intuition:"ABC dan BAC dianggap berbeda karena posisi objek berubah.",
+  def:"Permutasi menghitung susunan ketika urutan diperhatikan. Banyak susunan n objek berbeda adalah n!.",
+  example:"3 buku berbeda dapat disusun dalam 3!=6 cara.",
+  pattern:"Jika hanya mengambil r dari n dan urutan penting, gunakan nPr=n!/(n−r)!.",
+  mistake:"Menggunakan kombinasi ketika urutan sebenarnya penting.",
+  osn:"Permutasi sering menjadi dasar soal susunan dengan syarat tertentu.",
+  quiz:{q:"Berapa cara menyusun 3 buku berbeda?",opts:["3","6","9","12"],ans:1,exp:"3!=3·2·1=6."}},
+ {id:"co-kombinasi",topic:"combinatorics",title:"Kombinasi",order:3,
+  learn:"Bedakan memilih dengan menyusun: pada kombinasi, urutan tidak penting.",
+  intuition:"Memilih Ani-Budi sama saja dengan Budi-Ani jika yang diperhatikan hanya siapa yang terpilih.",
+  def:"Kombinasi memilih r objek dari n tanpa memperhatikan urutan: C(n,r)=n!/[r!(n−r)!].",
+  example:"Memilih 2 siswa dari 4 siswa menghasilkan C(4,2)=6 pilihan.",
+  pattern:"Tanya dulu: apakah AB dan BA dianggap sama? Jika ya, kemungkinan besar kombinasi.",
+  mistake:"Lupa membedakan 'memilih' dan 'menyusun'.",
+  osn:"Kombinasi banyak dipakai dalam pemilihan subset dan counting berbasis kasus.",
+  quiz:{q:"Banyak cara memilih 2 dari 4 objek berbeda?",opts:["4","6","8","12"],ans:1,exp:"C(4,2)=4!/(2!2!)=6."}},
+ {id:"co-pigeonhole",topic:"combinatorics",title:"Pigeonhole Principle",order:4,
+  learn:"Belajar membuktikan bahwa suatu kejadian pasti terjadi meskipun kita tidak tahu persis objek mana yang terlibat.",
+  intuition:"Jika ada lebih banyak benda daripada kotak, pasti ada kotak yang mendapat lebih dari satu benda.",
+  def:"Jika n+1 objek ditempatkan pada n kategori, setidaknya satu kategori berisi minimal 2 objek.",
+  example:"Dengan 5 kotak dan 6 bola, pasti ada kotak yang berisi minimal 2 bola.",
+  pattern:"Cari jumlah kategori, lalu pikirkan kasus terburuk sebelum kejadian yang dipastikan terjadi.",
+  mistake:"Menggunakan prinsip ini tanpa mendefinisikan 'kotak' atau kategori dengan jelas.",
+  osn:"Pigeonhole sering muncul dalam soal pembuktian keberadaan pola atau pasangan.",
+  quiz:{q:"Berapa minimal orang agar pasti ada 2 orang lahir pada bulan yang sama?",opts:["12","13","24","25"],ans:1,exp:"Ada 12 bulan. Orang ke-13 pasti berbagi setidaknya satu bulan dengan orang lain."}},
+ {id:"co-casework",topic:"combinatorics",title:"Casework & Strategi Kasus",order:5,
+  learn:"Belajar memecah masalah besar menjadi beberapa kasus kecil yang lengkap dan tidak tumpang tindih.",
+  intuition:"Daripada mencoba semua kemungkinan sekaligus, kelompokkan berdasarkan kondisi yang jelas.",
+  def:"Casework adalah strategi membagi himpunan kemungkinan menjadi beberapa kasus yang mencakup semua kemungkinan.",
+  example:"Jika suatu objek bisa berada di kiri, tengah, atau kanan, analisis tiga kasus secara terpisah.",
+  pattern:"Kasus harus lengkap dan idealnya saling lepas agar tidak terjadi hitung ganda.",
+  mistake:"Ada kasus yang terlewat atau satu kemungkinan dihitung dua kali.",
+  osn:"Casework merupakan strategi penting ketika syarat soal bercabang.",
+  quiz:{q:"Tujuan utama membagi soal menjadi beberapa kasus adalah?",opts:["Membuat angka lebih besar","Menghindari semua perhitungan","Menyusun kemungkinan secara sistematis","Menghilangkan syarat soal"],ans:2,exp:"Casework membuat semua kemungkinan dapat dianalisis secara sistematis tanpa melewatkan atau menghitung ganda."}}
+];
+const LOCKED_NODES=[];
+
+const PROBLEMS=[
+ {id:"NT-01",topic:"numberTheory",subtopic:"Modulo",diff:1,q:"Berapa sisa 47 dibagi 6?",opts:["1","3","5","2"],ans:2,
+  hints:["Cari kelipatan 6 terdekat di bawah 47.","6×7=42, berapa sisanya?"],
+  exp:"IDE UTAMA: cari kelipatan 6 terbesar ≤47.\nLANGKAH 1: 6×7=42.\nLANGKAH 2: 47-42=5.\nKESIMPULAN: sisa = 5.\nWhy this works: definisi sisa pembagian adalah selisih dari kelipatan terdekat di bawahnya."},
+ {id:"NT-02",topic:"numberTheory",subtopic:"FPB & KPK",diff:1,q:"FPB dari 28 dan 42 adalah?",opts:["7","14","4","21"],ans:1,
+  hints:["Faktorkan kedua bilangan.","28=2²·7, 42=2·3·7."],
+  exp:"IDE UTAMA: faktorisasi prima.\nLANGKAH 1: 28=2²·7, 42=2·3·7.\nLANGKAH 2: ambil pangkat terkecil tiap prima bersama: 2¹·7=14.\nKESIMPULAN: FPB=14."},
+ {id:"NT-03",topic:"numberTheory",subtopic:"Divisibility",diff:2,q:"Buktikan: 111...1 (sebanyak 6 angka 1) habis dibagi 3. Berapa hasil bagi jumlah digitnya oleh 3?",opts:["2","1","0","3"],ans:0,
+  hints:["Jumlahkan semua digitnya dulu.","Jumlah digit = 6."],
+  exp:"IDE UTAMA: aturan habis dibagi 3 bergantung jumlah digit.\nLANGKAH 1: jumlah digit=1×6=6.\nLANGKAH 2: 6/3=2.\nKESIMPULAN: hasil bagi jumlah digit oleh 3 adalah 2, jadi terbukti habis dibagi 3."},
+ {id:"NT-04",topic:"numberTheory",subtopic:"Kongruensi",diff:3,q:"Berapa digit satuan dari 7^100?",opts:["1","7","9","3"],ans:0,
+  hints:["Cari pola digit satuan 7^1,7^2,7^3,7^4.","Pola berulang tiap 4 pangkat: 7,9,3,1."],
+  exp:"IDE UTAMA: gunakan periodisitas digit satuan.\nLANGKAH 1: 7^1=7,7^2=49,7^3=343,7^4=2401 → pola 7,9,3,1 berulang tiap 4.\nLANGKAH 2: 100 mod 4=0, artinya posisi ke-4 dalam siklus.\nKESIMPULAN: digit satuan = 1.\nAlternative approach: gunakan 7≡7(mod10) dan sifat kongruensi pangkat."},
+ {id:"NT-05",topic:"numberTheory",subtopic:"Diophantine Equation",diff:3,q:"Berapa banyak pasangan (x,y) bulat positif yang memenuhi 3x+5y=50 dengan x,y>0?",opts:["2","3","4","5"],ans:1,
+  hints:["Nyatakan y dalam x: y=(50-3x)/5.","x harus membuat (50-3x) habis dibagi 5 dan y positif."],
+  exp:"IDE UTAMA: cari x sehingga (50-3x) habis dibagi 5 dan hasil y positif.\nLANGKAH 1: 50-3x≡0(mod5) → 3x≡0(mod5) → x≡0(mod5) (karena FPB(3,5)=1).\nLANGKAH 2: x=5,10,15 (x=0 tidak valid karena harus positif, x=15 beri y=1>0, x=20 beri y negatif).\nKESIMPULAN: x∈{5,10,15} → 3 pasangan."},
+ {id:"AL-01",topic:"algebra",subtopic:"Persamaan",diff:1,q:"Jika 2x+5=17, berapa x²?",opts:["36","49","25","16"],ans:0,
+  hints:["Selesaikan x dulu.","2x=12 → x=6."],
+  exp:"LANGKAH 1: 2x=12 → x=6.\nLANGKAH 2: x²=36.\nKESIMPULAN: 36."},
+ {id:"AL-02",topic:"algebra",subtopic:"Inequality",diff:2,q:"Untuk berapa banyak bilangan bulat positif n berlaku n²<50?",opts:["6","7","8","9"],ans:1,
+  hints:["Cari akar dari 50.","√50≈7.07, jadi n maksimal 7."],
+  exp:"IDE UTAMA: n²<50 setara n<√50≈7.07.\nLANGKAH: n∈{1,2,3,4,5,6,7} → 7 bilangan.\nKESIMPULAN: 7."},
+ {id:"AL-03",topic:"algebra",subtopic:"Sequence",diff:3,q:"Barisan aritmetika: suku ke-3=11, suku ke-7=27. Berapa suku ke-10?",opts:["39","40","41","42"],ans:0,
+  hints:["Cari beda (b) dari selisih suku ke-7 dan ke-3 dibagi 4.","27-11=16, 16/4=4 = beda."],
+  exp:"IDE UTAMA: beda b=(27-11)/(7-3)=4.\nLANGKAH 1: suku ke-1 = 11-2×4=3.\nLANGKAH 2: suku ke-10=3+9×4=39.\nKESIMPULAN: 39."},
+ {id:"GE-01",topic:"geometry",subtopic:"Segitiga",diff:1,q:"Segitiga siku-siku punya sisi 6 dan 8. Berapa sisi miringnya?",opts:["10","12","9","14"],ans:0,
+  hints:["Gunakan teorema Pythagoras.","6²+8²=100."],
+  exp:"LANGKAH: √(6²+8²)=√100=10.\nKESIMPULAN: 10."},
+ {id:"GE-02",topic:"geometry",subtopic:"Lingkaran",diff:2,q:"Sudut pusat 80° pada lingkaran, berapa sudut keliling yang menghadap busur yang sama?",opts:["40°","80°","160°","20°"],ans:0,
+  hints:["Sudut keliling = setengah sudut pusat pada busur yang sama."],
+  exp:"IDE UTAMA: teorema sudut keliling-pusat.\nLANGKAH: 80°/2=40°.\nKESIMPULAN: 40°."},
+ {id:"CO-01",topic:"combinatorics",subtopic:"Counting",diff:1,q:"Berapa cara menyusun 3 buku berbeda di rak?",opts:["3","6","9","1"],ans:1,
+  hints:["Ini adalah permutasi 3 objek.","3! = 3×2×1."],
+  exp:"LANGKAH: 3!=6.\nKESIMPULAN: 6 cara."},
+ {id:"CO-02",topic:"combinatorics",subtopic:"Pigeonhole",diff:3,q:"Dalam kotak berisi kelereng merah dan biru, berapa minimal kelereng yang harus diambil (tanpa melihat) agar pasti mendapat 2 kelereng warna sama?",opts:["2","3","4","5"],ans:1,
+  hints:["Pikirkan kasus terburuk: ambil satu-satu warna berbeda dulu.","Ada 2 warna (kotak/kategori)."],
+  exp:"IDE UTAMA: Pigeonhole Principle — 2 kategori warna.\nLANGKAH 1: kasus terburuk, 2 kelereng pertama bisa beda warna semua (1 merah,1 biru).\nLANGKAH 2: kelereng ke-3 pasti mengulang salah satu warna.\nKESIMPULAN: minimal 3 kelereng."},
+];
+
+const DIAG_Q=[
+ {id:"NT-D01",topic:"numberTheory",subtopic:"Bilangan Bulat",diff:1,q:"Manakah yang bukan bilangan bulat?",opts:["−7","0","2,5","14"],ans:2},
+ {id:"NT-D02",topic:"numberTheory",subtopic:"Faktor",diff:1,q:"Manakah yang merupakan faktor dari 24?",opts:["5","6","7","9"],ans:1},
+ {id:"NT-D03",topic:"numberTheory",subtopic:"FPB",diff:2,q:"FPB dari 36 dan 48 adalah?",opts:["6","8","12","16"],ans:2},
+ {id:"NT-D04",topic:"numberTheory",subtopic:"Prima",diff:2,q:"Bilangan manakah yang prima?",opts:["39","41","51","57"],ans:1},
+ {id:"NT-D05",topic:"numberTheory",subtopic:"Faktorisasi",diff:2,q:"Faktorisasi prima 72 adalah?",opts:["2²·3²","2³·3²","2³·3","2²·3³"],ans:1},
+ {id:"NT-D06",topic:"numberTheory",subtopic:"Divisibility",diff:2,q:"Bilangan berikut yang habis dibagi 9 adalah?",opts:["235","342","513","721"],ans:2},
+ {id:"NT-D07",topic:"numberTheory",subtopic:"Modulo",diff:3,q:"Sisa 83 dibagi 7 adalah?",opts:["5","6","4","3"],ans:0},
+ {id:"NT-D08",topic:"numberTheory",subtopic:"Kongruensi",diff:3,q:"Pernyataan yang benar adalah?",opts:["19≡4 (mod 5)","19≡3 (mod 5)","19≡2 (mod 5)","19≡1 (mod 5)"],ans:0},
+ {id:"NT-D09",topic:"numberTheory",subtopic:"Modulo",diff:3,q:"Digit satuan 3^4 adalah?",opts:["1","3","7","9"],ans:3},
+ {id:"NT-D10",topic:"numberTheory",subtopic:"Diophantine",diff:3,q:"Apakah 6x+9y=4 mempunyai solusi bulat?",opts:["Ya","Tidak, karena FPB(6,9) tidak membagi 4"],ans:1},
+
+ {id:"AL-D01",topic:"algebra",subtopic:"Persamaan",diff:1,q:"Jika 2x+6=14, maka x=?",opts:["2","4","6","8"],ans:1},
+ {id:"AL-D02",topic:"algebra",subtopic:"Operasi Aljabar",diff:1,q:"Sederhanakan 3x+2x−4.",opts:["5x−4","6x−4","5x+4","x−4"],ans:0},
+ {id:"AL-D03",topic:"algebra",subtopic:"Faktorisasi",diff:2,q:"x²−25 dapat difaktorkan menjadi...",opts:["(x−5)(x+5)","(x−25)(x+1)","(x−5)²","(x+25)(x−1)"],ans:0},
+ {id:"AL-D04",topic:"algebra",subtopic:"Inequality",diff:2,q:"Jika 3x<12, maka...",opts:["x<4","x>4","x<9","x>9"],ans:0},
+ {id:"AL-D05",topic:"algebra",subtopic:"Sequence",diff:2,q:"Suku ke-6 dari 4,7,10,13,... adalah?",opts:["16","19","20","22"],ans:1},
+ {id:"AL-D06",topic:"algebra",subtopic:"Polinomial",diff:3,q:"(x+2)² sama dengan...",opts:["x²+4","x²+2x+4","x²+4x+4","x²+4x+2"],ans:2},
+ {id:"AL-D07",topic:"algebra",subtopic:"Inequality",diff:3,q:"Jika −3x≥12, maka...",opts:["x≥−4","x≤−4","x≥4","x≤4"],ans:1},
+ {id:"AL-D08",topic:"algebra",subtopic:"Sequence",diff:3,q:"Jika a₃=10 dan beda barisan aritmetika 4, maka a₇=?",opts:["22","24","26","28"],ans:2},
+ {id:"AL-D09",topic:"algebra",subtopic:"Identitas",diff:3,q:"Jika x+y=10 dan xy=21, nilai x²+y² adalah...",opts:["42","58","79","100"],ans:1},
+ {id:"AL-D10",topic:"algebra",subtopic:"Polinomial",diff:3,q:"Jika x²−5x+6=0, jumlah akar-akarnya adalah...",opts:["2","3","5","6"],ans:2},
+
+ {id:"GE-D01",topic:"geometry",subtopic:"Sudut",diff:1,q:"Jumlah sudut dalam segitiga adalah...",opts:["90°","180°","270°","360°"],ans:1},
+ {id:"GE-D02",topic:"geometry",subtopic:"Segitiga",diff:1,q:"Segitiga siku-siku dengan kaki 5 dan 12 memiliki sisi miring...",opts:["13","14","15","17"],ans:0},
+ {id:"GE-D03",topic:"geometry",subtopic:"Lingkaran",diff:2,q:"Jika sudut pusat 100°, sudut keliling pada busur yang sama adalah...",opts:["25°","40°","50°","100°"],ans:2},
+ {id:"GE-D04",topic:"geometry",subtopic:"Kesebangunan",diff:2,q:"Dua segitiga sebangun memiliki rasio 2:3. Jika sisi kecil 10, sisi besar adalah...",opts:["12","15","18","20"],ans:1},
+ {id:"GE-D05",topic:"geometry",subtopic:"Sudut",diff:2,q:"Dua sudut berpelurus. Jika salah satunya 65°, sudut lainnya...",opts:["25°","65°","115°","125°"],ans:2},
+ {id:"GE-D06",topic:"geometry",subtopic:"Transformasi",diff:2,q:"Refleksi titik (4,−3) terhadap sumbu-x adalah...",opts:["(−4,−3)","(4,3)","(−4,3)","(3,4)"],ans:1},
+ {id:"GE-D07",topic:"geometry",subtopic:"Segitiga",diff:3,q:"Segitiga memiliki sudut 40° dan 70°. Sudut ketiga adalah...",opts:["60°","70°","80°","90°"],ans:2},
+ {id:"GE-D08",topic:"geometry",subtopic:"Lingkaran",diff:3,q:"Jika jari-jari lingkaran 7 dan π=22/7, luasnya adalah...",opts:["44","88","154","308"],ans:2},
+ {id:"GE-D09",topic:"geometry",subtopic:"Kesebangunan",diff:3,q:"Segitiga kecil dan besar sebangun dengan rasio panjang 3:5. Jika luas kecil 27, luas besar adalah...",opts:["45","60","75","90"],ans:2},
+ {id:"GE-D10",topic:"geometry",subtopic:"Transformasi",diff:3,q:"Rotasi 180° terhadap titik asal memetakan (2,−5) menjadi...",opts:["(−2,5)","(2,5)","(−2,−5)","(5,−2)"],ans:0},
+
+ {id:"CO-D01",topic:"combinatorics",subtopic:"Counting",diff:1,q:"Ada 3 pilihan makanan dan 2 pilihan minuman. Berapa pasangan pilihan?",opts:["5","6","8","9"],ans:1},
+ {id:"CO-D02",topic:"combinatorics",subtopic:"Permutasi",diff:1,q:"Berapa cara menyusun 3 objek berbeda?",opts:["3","6","9","12"],ans:1},
+ {id:"CO-D03",topic:"combinatorics",subtopic:"Kombinasi",diff:2,q:"Banyak cara memilih 2 dari 5 objek adalah...",opts:["5","8","10","20"],ans:2},
+ {id:"CO-D04",topic:"combinatorics",subtopic:"Pigeonhole",diff:2,q:"Dengan 12 bulan, minimal berapa orang agar pasti ada dua lahir pada bulan yang sama?",opts:["11","12","13","24"],ans:2},
+ {id:"CO-D05",topic:"combinatorics",subtopic:"Casework",diff:2,q:"Mengapa casework harus mencakup semua kemungkinan?",opts:["Agar soal terlihat panjang","Agar tidak ada kemungkinan yang terlewat","Agar angka lebih besar","Agar tidak perlu menghitung"],ans:1},
+ {id:"CO-D06",topic:"combinatorics",subtopic:"Permutasi",diff:3,q:"Berapa susunan berbeda dari 4 buku berbeda?",opts:["8","12","16","24"],ans:3},
+ {id:"CO-D07",topic:"combinatorics",subtopic:"Kombinasi",diff:3,q:"Banyak cara memilih 3 orang dari 6 orang adalah...",opts:["15","18","20","24"],ans:2},
+ {id:"CO-D08",topic:"combinatorics",subtopic:"Pigeonhole",diff:3,q:"Ada 5 kotak dan 11 bola. Pasti ada satu kotak berisi minimal berapa bola?",opts:["2","3","4","5"],ans:1},
+ {id:"CO-D09",topic:"combinatorics",subtopic:"Casework",diff:3,q:"Jika sebuah objek dapat berada pada 3 posisi yang berbeda dan kasus tidak tumpang tindih, total kemungkinan dihitung dengan...",opts:["Menjumlahkan ketiga kasus","Mengalikan tanpa alasan","Menghapus satu kasus","Mengambil rata-rata"],ans:0},
+ {id:"CO-D10",topic:"combinatorics",subtopic:"Counting",diff:3,q:"Berapa banyak subset dari himpunan 4 elemen?",opts:["4","8","12","16"],ans:3}
+];
+DIAG_Q.forEach(x=>{if(typeof x.ans==="function")x.ans=x.ans();});
+
+/* ---------- STORE ---------- */
+const KEY="osnhub_v2";
+function defaultUser(){return{xp:0,streak:0,skillEvents:{numberTheory:[],algebra:[],geometry:[],combinatorics:[]},
+  conceptQuiz:{},problemAttempts:{},errors:[],diagnostic:null,diagnosticHistory:[],lastVisit:null};}
+let U;
+try{
+  U=JSON.parse(localStorage.getItem(KEY))||defaultUser();
+}catch(e){U=defaultUser();}
+U.diagnosticHistory=U.diagnosticHistory||[];
+if(!U.skillEvents)U.skillEvents={numberTheory:[],algebra:[],geometry:[],combinatorics:[]};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(U));}
+
+/* ---------- DERIVED METRICS ---------- */
+function topicAccuracy(topic){
+  const atts=Object.values(U.problemAttempts).filter(a=>a.topic===topic);
+  if(!atts.length)return null;
+  return Math.round(100*atts.filter(a=>a.correct).length/atts.length);
+}
+function overallXP(){return U.xp;}
+function level(){const l=["Foundation","Problem Solver","Mathematician","Advanced Solver","Olympiad Training","Olympiad Challenge"];
+  const i=Math.min(5,Math.floor(U.xp/150));return {i,name:l[i]};}
+function conceptMastery(id){
+  const cq=U.conceptQuiz[id]; const probs=Object.values(U.problemAttempts).filter(a=>a.subtopic===CONCEPTS.find(c=>c.id===id)?.title);
+  if(!cq && !probs.length)return {score:0,status:"NOT_STARTED"};
+  let score=0,n=0;
+  if(cq){score+=cq.correct?100:30;n++;}
+  if(probs.length){score+=100*probs.filter(p=>p.correct).length/probs.length;n++;}
+  score=n?Math.round(score/n):0;
+  let status="IN_PROGRESS";
+  if(!cq&&!probs.length)status="NOT_STARTED";
+  else if(score>=80 && cq && cq.correct && probs.filter(p=>p.correct).length>=1) status="MASTERED";
+  return {score,status};
+}
+function nodeStatus(concept,idx){
+  const m=conceptMastery(concept.id);
+  if(m.status!=="NOT_STARTED")return m.status==="MASTERED"?"MASTERED":"IN_PROGRESS";
+  if(idx===0)return "AVAILABLE";
+  const prevM=conceptMastery(CONCEPTS[idx-1].id);
+  return prevM.status==="MASTERED"?"AVAILABLE":"AVAILABLE"; // lock is advisory only
+}
+function solvedCount(){return Object.values(U.problemAttempts).length;}
+function accuracyOverall(){const a=Object.values(U.problemAttempts);if(!a.length)return null;return Math.round(100*a.filter(x=>x.correct).length/a.length);}
+function conceptsMasteredCount(){return CONCEPTS.filter(c=>conceptMastery(c.id).status==="MASTERED").length;}
+function errorStats(){const s={};U.errors.forEach(e=>{s[e.type]=(s[e.type]||0)+1});return s;}
+function recommendations(){
+  const recs=[];
+  // Use the latest diagnostic first: it gives the most direct concept-level signal.
+  const latest=U.diagnostic;
+  if(latest?.perSubtopic){
+    const weak=Object.values(latest.perSubtopic)
+      .map(x=>({...x,score:Math.round(100*x.correct/x.total)}))
+      .sort((a,b)=>a.score-b.score)[0];
+    if(weak && weak.score<80){
+      recs.push({
+        topic:weak.topic,
+        subtopic:weak.subtopic,
+        reason:`Fokus berikutnya: ${weak.subtopic} (${TOPIC_LABEL[weak.topic]}). Hasil diagnostic kamu ${weak.score}% pada subtopik ini.`,
+        action:"concept"
+      });
+    }
+  }
+  for(const t of TOPICS){
+    const acc=topicAccuracy(t);
+    if(acc!==null && acc<70 && !recs.some(r=>r.topic===t)){
+      recs.push({topic:t,reason:`Akurasi ${TOPIC_LABEL[t]} kamu ${acc}%, perlu diperkuat.`,action:"practice"});
+    }
+  }
+  const es=errorStats(); const top=Object.entries(es).sort((a,b)=>b[1]-a[1])[0];
+  if(top && top[1]>=2) recs.push({topic:null,reason:`${Math.round(100*top[1]/U.errors.length)}% kesalahanmu adalah ${top[0]}. Coba pelajari strategi terkait sebelum naik level.`,action:"strategy"});
+  if(!recs.length) recs.push({topic:null,reason:"Belum cukup data untuk menentukan fokus. Mulai dengan Diagnostic Test atau kerjakan Problem Lab.",action:"diagnostic"});
+  return recs.slice(0,3);
+}
+
+
+/* ---------- V1.5 STRATEGY LIBRARY ---------- */
+const STRATEGIES=[
+ {id:"parity",topic:"numberTheory",title:"Parity / Ganjil-Genap",desc:"Lacak apakah suatu bilangan genap atau ganjil untuk mempersempit kemungkinan.",use:"Cari pola yang berubah atau tetap berdasarkan paritas."},
+ {id:"modular",topic:"numberTheory",title:"Modular Arithmetic",desc:"Gunakan sisa pembagian untuk menyederhanakan bilangan besar atau pola berulang.",use:"Cocok untuk digit satuan, keterbagian, dan kongruensi."},
+ {id:"factorization",topic:"numberTheory",title:"Factorization",desc:"Ubah bilangan atau ekspresi menjadi faktor yang lebih mudah dianalisis.",use:"Cocok untuk FPB, KPK, divisibility, dan persamaan."},
+ {id:"vieta",topic:"algebra",title:"Vieta & Root Relations",desc:"Hubungkan jumlah dan hasil kali akar tanpa harus mencari akar satu per satu.",use:"Berguna saat soal memberi informasi tentang akar polinom."},
+ {id:"substitution",topic:"algebra",title:"Substitution",desc:"Ganti ekspresi dengan bentuk yang setara agar struktur soal lebih sederhana.",use:"Cari bentuk yang membuat hubungan antarvariabel lebih jelas."},
+ {id:"inequality",topic:"algebra",title:"Inequality Strategy",desc:"Bandingkan dua bentuk dengan transformasi, faktorisasi, atau batas yang tepat.",use:"Periksa kapan kesamaan terjadi dan jangan asal membalik tanda."},
+ {id:"angle-chasing",topic:"geometry",title:"Angle Chasing",desc:"Gunakan hubungan sudut dari garis sejajar, segitiga, dan lingkaran untuk menemukan sudut tersembunyi.",use:"Tulis fakta sudut yang pasti sebelum menebak gambar."},
+ {id:"similarity",topic:"geometry",title:"Similarity",desc:"Manfaatkan segitiga sebangun untuk mendapatkan rasio sisi atau sudut.",use:"Cari pasangan sudut sama sebelum membandingkan panjang."},
+ {id:"power-point",topic:"geometry",title:"Power of a Point",desc:"Hubungkan hasil kali ruas-ruas dari garis secan, chord, atau tangent.",use:"Berguna pada soal lingkaran dengan beberapa garis yang berpotongan."},
+ {id:"casework",topic:"combinatorics",title:"Casework",desc:"Pecah masalah menjadi beberapa kasus yang jelas dan saling lepas.",use:"Pastikan semua kasus tercakup dan tidak dihitung dua kali."},
+ {id:"pigeonhole",topic:"combinatorics",title:"Pigeonhole Principle",desc:"Jika objek lebih banyak daripada kotak, setidaknya satu kotak berisi lebih dari satu objek.",use:"Cari 'kotak' dan 'objek' yang tepat sebelum menerapkan prinsip."},
+ {id:"double-counting",topic:"combinatorics",title:"Double Counting",desc:"Hitung objek yang sama dengan dua cara berbeda lalu samakan hasilnya.",use:"Sangat berguna untuk relasi jumlah pasangan, derajat, atau pilihan."}
+];
+
+function strategiesForProblem(p){
+  const map={
+    "Modulo":["modular"],"Kongruensi":["modular","parity"],"Divisibility":["factorization","modular"],
+    "FPB & KPK":["factorization"],"Faktorisasi Prima":["factorization"],"Diophantine Equation":["modular","factorization"],
+    "Persamaan":["substitution"],"Inequality":["inequality"],"Polinomial":["vieta","factorization"],
+    "Segitiga":["similarity","angle-chasing"],"Sudut":["angle-chasing"],"Lingkaran":["power-point","angle-chasing"],
+    "Permutasi":["casework"],"Kombinasi":["casework","double-counting"],"Pigeonhole Principle":["pigeonhole"],"Casework":["casework"]
+  };
+  const ids=map[p.subtopic]||[];
+  return STRATEGIES.filter(s=>ids.includes(s.id));
+}
+
+function viewStrategy(id){
+  if(!id) return `
+    <h2>Strategy Library</h2>
+    <div class="card">
+      <p><b>Strategi bukan rumus.</b> Ini adalah cara memilih pendekatan ketika kamu belum tahu harus mulai dari mana.</p>
+      <p class="muted">Pelajari ide → kenali kapan dipakai → coba di Problem Lab.</p>
+    </div>
+    ${TOPICS.map(t=>{
+      const ss=STRATEGIES.filter(s=>s.topic===t);
+      return `<div class="card"><h3>${TOPIC_LABEL[t]}</h3><div class="strategy-grid">
+        ${ss.map(s=>`<div class="strategy-item" onclick="nav('strategy','${s.id}')"><b>${s.title}</b><p class="muted">${s.desc}</p><span class="tag">Kapan dipakai</span></div>`).join("")}
+      </div></div>`;
+    }).join("")}`;
+  const s=STRATEGIES.find(x=>x.id===id);
+  if(!s)return `<div class="card">Strategi tidak ditemukan.<button class="btn ghost sm" onclick="nav('strategy')">Kembali</button></div>`;
+  return `<button class="btn ghost sm" onclick="nav('strategy')">← Strategy Library</button>
+  <div class="card">
+    <div class="muted">${TOPIC_LABEL[s.topic]}</div>
+    <h2>${s.title}</h2>
+    <p>${s.desc}</p>
+    <div class="sec-label">Kapan dipakai?</div><p>${s.use}</p>
+  </div>
+  <div class="card">
+    <h3>Coba sekarang</h3>
+    <p class="muted">Cari soal yang relevan di Problem Lab dan coba tentukan strateginya sebelum melihat hint.</p>
+    <button class="btn" onclick="nav('problem')">Buka Problem Lab</button>
+  </div>`;
+}
+
+
+/* ---------- ROUTER ---------- */
+const ROUTES=["home","diagnostic","path","concept","problem","strategy","progress","errors"];
+function nav(r,param){location.hash="#"+r+(param?"/"+param:"");}
+window.addEventListener("hashchange",render);
+function currentRoute(){const h=location.hash.slice(1)||"home";const [r,p]=h.split("/");return{r:ROUTES.includes(r)?r:"home",p};}
+
+function renderNav(){
+  const {r}=currentRoute();
+  const items=[["home","Home"],["diagnostic","Diagnostic"],["path","Learning Path"],["problem","Problem Lab"],["strategy","Strategies"],["progress","Progress"],["errors","Error Log"]];
+  document.getElementById("nav").innerHTML=items.map(([k,l])=>`<button class="${r===k?'on':''}" onclick="nav('${k}')">${l}</button>`).join("");
+}
+
+/* ---------- VIEWS ---------- */
+function bar(pct,color){return `<div class="bar"><i style="width:${pct}%;${color?`background:${color}`:''}"></i></div>`;}
+
+
+function homeFocusCard(){
+  const rec=recommendations()[0];
+  if(rec.action==="concept" && rec.subtopic){
+    const c=CONCEPTS.find(x=>x.title===rec.subtopic);
+    return `<div class="muted">FOKUS BERIKUTNYA</div>
+      <div class="focus-number">${rec.subtopic}</div>
+      <p>${rec.reason}</p>
+      <button class="btn sm" onclick="${c?`nav('concept','${c.id}')`:`nav('path')`}">Pelajari sekarang</button>`;
+  }
+  if(rec.action==="practice" && rec.topic){
+    return `<div class="muted">FOKUS BERIKUTNYA</div><div class="focus-number">${TOPIC_LABEL[rec.topic]}</div>
+      <p>${rec.reason}</p><button class="btn sm" onclick="nav('problem')">Kerjakan soal</button>`;
+  }
+  if(rec.action==="strategy"){
+    return `<div class="muted">FOKUS BERIKUTNYA</div><div class="focus-number">Perbaiki strategi</div>
+      <p>${rec.reason}</p><button class="btn sm" onclick="nav('strategy')">Pelajari strategi</button>`;
+  }
+  return `<div class="muted">LANGKAH PERTAMA</div><div class="focus-number">Diagnostic Test</div>
+    <p>${rec.reason}</p><button class="btn sm" onclick="startDiagnostic()">Mulai diagnostic</button>`;
+}
+
+function viewHome(){
+  return `
+  <div class="card" style="text-align:center;padding:40px 20px">
+    <h1 style="font-size:1.9rem">THINK LIKE AN OLYMPIAD MATHEMATICIAN</h1>
+    <p class="muted" style="max-width:480px;margin:0 auto 20px">Belajar konsep, memahami pola, dan melatih cara berpikir untuk menyelesaikan masalah Matematika OSN.</p>
+    <button class="btn" onclick="startDiagnostic()">MULAI DIAGNOSTIC TEST</button>
+    <button class="btn ghost" style="margin-left:8px" onclick="nav('path')">LIHAT LEARNING PATH</button>
+  </div>
+  <div class="focus-grid">
+    <div class="card focus-card">${homeFocusCard()}</div>
+    <div class="card">
+      <h3>Alur Belajar</h3>
+      <p class="muted">Concept → Quick Check → Problem → Error Log → Strategy</p>
+      <button class="btn sm ghost" onclick="nav('problem')">Mulai latihan</button>
+      <button class="btn sm ghost" style="margin-left:5px" onclick="nav('strategy')">Lihat strategi</button>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="card"><h3>Number Theory</h3><p class="muted">Bilangan, divisibility, modulo, kongruensi, Diophantine equation.</p></div>
+    <div class="card"><h3>Algebra</h3><p class="muted">Persamaan, fungsi, polinomial, inequality, sequence.</p></div>
+    <div class="card"><h3>Geometry</h3><p class="muted">Sudut, segitiga, lingkaran, similarity, transformasi.</p></div>
+    <div class="card"><h3>Combinatorics</h3><p class="muted">Counting, permutasi, kombinasi, pigeonhole, rekurensi.</p></div>
+  </div>`;
+}
+
+let diagState=null;
+
+function buildDiagnostic(){
+  const used=(U.diagnosticHistory||[]).flatMap(x=>x.ids||[]);
+  const selected=[];
+  TOPICS.forEach(topic=>{
+    const pool=DIAG_Q.filter(q=>q.topic===topic);
+    // Prefer unseen questions, then allow old questions only after exhausting unseen ones.
+    let fresh=pool.filter(q=>!used.includes(q.id));
+    if(fresh.length<5) fresh=[...fresh,...pool.filter(q=>used.includes(q.id))];
+    fresh.sort(()=>Math.random()-0.5);
+    // 2 basic/intermediate + 2 medium + 1 harder question
+    const byDiff=d=>fresh.filter(q=>q.diff===d);
+    const chosen=[];
+    [1,2,2,3,3].forEach(d=>{
+      const candidates=byDiff(d).filter(q=>!chosen.includes(q));
+      if(candidates.length) chosen.push(candidates[Math.floor(Math.random()*candidates.length)]);
+    });
+    for(const q of fresh) if(chosen.length<5&&!chosen.includes(q)) chosen.push(q);
+    selected.push(...chosen.slice(0,5));
+  });
+  return selected.sort(()=>Math.random()-0.5);
+}
+
+function startDiagnostic(){
+  diagState={i:0,answers:[],questions:buildDiagnostic()};
+  nav('diagnostic');
+}
+
+function viewDiagnostic(){
+  if(!diagState) return `
+    <div class="card">
+      <h2>Diagnostic Test</h2>
+      <p>20 soal berbeda dari kumpulan soal yang lebih besar. Setiap bidang berisi 5 soal dengan tingkat kesulitan bertahap.</p>
+      <p class="muted">Tujuannya bukan sekadar mencari nilai, tetapi mencari konsep mana yang sudah kuat dan mana yang perlu diperkuat.</p>
+      <button class="btn" onclick="startDiagnostic()">Mulai Diagnostic</button>
+    </div>
+    ${U.diagnosticHistory?.length?`<div class="card"><h3>Riwayat Diagnostic</h3><p class="muted">${U.diagnosticHistory.length} tes pernah dikerjakan. Tes berikutnya akan memprioritaskan soal yang belum pernah muncul.</p></div>`:''}`;
+  if(diagState.i>=diagState.questions.length) return diagResult();
+  const q=diagState.questions[diagState.i];
+  return `
+  <div class="card">
+    <div class="muted">Soal ${diagState.i+1} / ${diagState.questions.length} · ${TOPIC_LABEL[q.topic]} · ${q.subtopic} · Level ${q.diff}</div>
+    ${bar(100*diagState.i/diagState.questions.length,'var(--warn)')}
+    <h2 style="margin-top:16px">${q.q}</h2>
+    <div id="diagOpts">${q.opts.map((o,i)=>`<button class="opt" onclick="diagAnswer(${i})">${o}</button>`).join("")}</div>
+  </div>`;
+}
+
+window.diagAnswer=function(i){
+  const q=diagState.questions[diagState.i];
+  diagState.pending={id:q.id,topic:q.topic,subtopic:q.subtopic,diff:q.diff,correct:i===q.ans};
+  document.getElementById("app").innerHTML=`
+  <div class="card">
+    <h2>Seberapa yakin dengan jawabanmu?</h2>
+    <p class="muted">${TOPIC_LABEL[q.topic]} · ${q.subtopic}</p>
+    <button class="opt" onclick="diagConfidence('Yakin')">Yakin</button>
+    <button class="opt" onclick="diagConfidence('Lumayan yakin')">Lumayan yakin</button>
+    <button class="opt" onclick="diagConfidence('Tebak')">Tebak</button>
+  </div>`;
+};
+
+window.diagConfidence=function(c){
+  diagState.pending.confidence=c;
+  diagState.answers.push(diagState.pending);
+  diagState.i++;
+  render();
+};
+
+function diagResult(){
+  const perTopic={}, perSubtopic={};
+  TOPICS.forEach(t=>{
+    const rs=diagState.answers.filter(a=>a.topic===t);
+    perTopic[t]=rs.length?Math.round(100*rs.filter(a=>a.correct).length/rs.length):null;
+  });
+  diagState.answers.forEach(a=>{
+    const key=a.topic+"|"+a.subtopic;
+    if(!perSubtopic[key])perSubtopic[key]={topic:a.topic,subtopic:a.subtopic,total:0,correct:0};
+    perSubtopic[key].total++;
+    if(a.correct)perSubtopic[key].correct++;
+  });
+  const weak=Object.values(perSubtopic)
+    .map(x=>({...x,score:Math.round(100*x.correct/x.total)}))
+    .sort((a,b)=>a.score-b.score);
+  const ids=diagState.questions.map(q=>q.id);
+  U.diagnostic={date:new Date().toISOString(),perTopic,perSubtopic};
+  U.diagnosticHistory=U.diagnosticHistory||[];
+  U.diagnosticHistory.push({date:U.diagnostic.date,ids,perTopic});
+  // Keep history useful without allowing it to grow forever.
+  if(U.diagnosticHistory.length>10)U.diagnosticHistory.shift();
+  save();
+
+  const focus=weak.slice(0,4);
+  return `
+  <div class="card"><h2>Hasil Diagnostic</h2>
+  <p class="muted">Hasil ini menunjukkan performa tes ini. Untuk rekomendasi yang lebih berguna, sistem melihat subtopik yang paling banyak bermasalah.</p>
+  ${TOPICS.map(t=>`<div style="margin-bottom:12px"><div class="muted">${TOPIC_LABEL[t]} — ${perTopic[t]}%</div>${bar(perTopic[t]||0)}</div>`).join("")}
+  </div>
+  <div class="card"><h3>Subtopik yang perlu diperkuat</h3>
+  ${focus.map((x,i)=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><b>${i+1}. ${x.subtopic}</b><div class="muted">${TOPIC_LABEL[x.topic]} · ${x.score}% pada ${x.total} soal</div><button class="btn sm ghost" style="margin-top:6px" onclick="nav('path')">Buka Learning Path</button></div>`).join("")}
+  <div style="margin-top:14px"><button class="btn" onclick="nav('path')">Lihat Learning Path</button>
+  <button class="btn ghost" style="margin-left:8px" onclick="diagState=null;render()">Tes Lagi</button></div>
+  </div>`;
+}
+
+function viewPath(){
+  let html=`<h2>Learning Path</h2>
+  <div class="card">
+    <p><b>Jangan hafal semuanya sekaligus.</b> Ikuti urutan dari konsep dasar → contoh → pola → mini check → soal. Setelah fondasinya kuat, baru naik ke konsep berikutnya.</p>
+    <p class="muted">Status materi diperbarui dari aktivitas nyata kamu, bukan dari sekadar membuka halaman.</p>
+  </div>`;
+  TOPICS.forEach(t=>{
+    const cs=CONCEPTS.filter(c=>c.topic===t);
+    html+=`<div class="card"><h3>${TOPIC_LABEL[t]}</h3>
+      <p class="muted">${cs.length} konsep · ${cs.filter(c=>conceptMastery(c.id).status==="MASTERED").length} sudah mastered</p>`;
+    html+=`<div class="path-chain">`;
+    cs.forEach((c,idx)=>{
+      const m=conceptMastery(c.id); const st=nodeStatus(c,idx);
+      html+=`<div class="path-step" onclick="nav('concept','${c.id}')">
+        <div class="muted">${c.order} · ${st.replace('_',' ')}</div>
+        <b>${c.title}</b>
+        <div class="muted" style="margin-top:7px">${m.score}% mastery</div>${bar(m.score)}
+      </div>`;
+      if(idx<cs.length-1) html+=`<div class="path-arrow">→</div>`;
+    });
+    html+=`</div>
+      <p class="muted">Urutan ini menunjukkan perjalanan konsep. Node tetap bisa dibuka, tetapi mastery ditentukan oleh aktivitas nyata.</p>`;
+    html+=`<div class="path-detail-list">`;
+    cs.forEach((c)=>{
+      const m=conceptMastery(c.id); const st=nodeStatus(c,0);
+      html+=`<div class="node ${st}" onclick="nav('concept','${c.id}')">
+        <div style="display:flex;justify-content:space-between;gap:10px"><b>${c.order}. ${c.title}</b><span class="pill">${st.replace('_',' ')}</span></div>
+        <p class="muted" style="margin:7px 0">${c.learn}</p>
+        <div class="muted">Mastery: ${m.score}%</div>${bar(m.score)}
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  return html;
+}
+
+let quizState={};
+function viewConcept(id){
+  const c=CONCEPTS.find(x=>x.id===id);
+  if(!c)return `<div class="card">Konsep tidak ditemukan. <button class="btn ghost" onclick="nav('path')">Kembali</button></div>`;
+  const done=U.conceptQuiz[id];
+  return `
+  <button class="btn ghost sm" onclick="nav('path')">← Learning Path</button>
+  <div class="card"><h2>${c.title}</h2>
+    <p class="muted">Alur belajar: <b>Kenalan → Pahami → Lihat pola → Cek pemahaman → Hubungkan ke OSN</b></p>
+    <div class="sec-label">1 · Kenalan dengan konsep</div><p>${c.learn}</p>
+    <div class="sec-label">2 · Inti konsep</div><p>${c.intuition}</p>
+    <div class="sec-label">3 · Definisi formal</div><p>${c.def}</p>
+    <div class="sec-label">4 · Contoh</div><p>${c.example}</p>
+    <div class="sec-label">5 · Pola yang perlu dilihat</div><p>${c.pattern}</p>
+    <div class="sec-label">6 · Kesalahan umum</div><p>${c.mistake}</p>
+    <div class="sec-label">7 · Hubungannya dengan OSN</div><p>${c.osn}</p>
+  </div>
+  <div class="card" id="quizBox">
+    <div class="sec-label">Quick Check</div>
+    <h3>${c.quiz.q}</h3>
+    ${done?`<p class="${done.correct?'':''}" style="color:${done.correct?'var(--accent)':'var(--bad)'}">${done.correct?'✅ Benar':'❌ Salah'} — ${c.quiz.exp}</p>
+    <button class="btn ghost sm" onclick="delete U.conceptQuiz['${id}'];save();render()">Coba lagi</button>`
+    :c.quiz.opts.map((o,i)=>`<button class="opt" onclick="answerQuiz('${id}',${i})">${o}</button>`).join("")}
+  </div>
+  <div class="card"><p class="muted">Sudah paham konsepnya? Lanjut latihan soal terkait.</p>
+  <button class="btn" onclick="nav('problem')">Buka Problem Lab</button></div>`;
+}
+window.answerQuiz=function(id,i){
+  const c=CONCEPTS.find(x=>x.id===id);
+  const correct=i===c.quiz.ans;
+  const first=!U.conceptQuiz[id];
+  U.conceptQuiz[id]={correct,date:Date.now()};
+  if(first) U.xp+=15;
+  save(); render();
+};
+
+let probState={};
+function viewProblem(id){
+  if(!id){
+    let html=`<h2>Problem Lab</h2>`;
+    TOPICS.forEach(t=>{
+      const ps=PROBLEMS.filter(p=>p.topic===t);
+      html+=`<div class="card"><h3>${TOPIC_LABEL[t]}</h3><table><tr><th>ID</th><th>Subtopic</th><th>Diff</th><th>Status</th><th></th></tr>
+      ${ps.map(p=>{const a=U.problemAttempts[p.id];
+        return `<tr><td>${p.id}</td><td>${p.subtopic}</td><td>${'★'.repeat(p.diff)}${'☆'.repeat(3-p.diff)}</td>
+        <td>${a?(a.correct?'✅':'❌'):'—'}</td><td><button class="btn sm" onclick="nav('problem','${p.id}')">Buka</button></td></tr>`;
+      }).join("")}</table></div>`;
+    });
+    return html;
+  }
+  const p=PROBLEMS.find(x=>x.id===id);
+  if(!p)return `<div class="card">Soal tidak ditemukan.</div>`;
+  const st=probState[id]||{hints:0,answered:null};
+  probState[id]=st;
+  const attempt=U.problemAttempts[id];
+  let html=`<button class="btn ghost sm" onclick="nav('problem')">← Problem Lab</button>
+  <div class="card"><div class="muted">${p.id} · ${p.subtopic} · ${'★'.repeat(p.diff)}${'☆'.repeat(3-p.diff)}</div>
+  <h2 style="white-space:pre-wrap">${p.q}</h2>`;
+  if(st.answered===null && !attempt){
+    html+=p.opts.map((o,i)=>`<button class="opt" onclick="answerProblem('${id}',${i})">${o}</button>`).join("");
+  } else {
+    const a=attempt||st.answered;
+    html+=p.opts.map((o,i)=>`<div class="opt ${i===p.ans?'correct':(i===a.chosen&&i!==p.ans?'wrong':'')}">${o}</div>`).join("");
+    html+=`<p style="margin-top:10px">${a.correct?'✅ Jawaban benar!':'❌ Jawaban salah.'}</p>`;
+  }
+  html+=`</div>`;
+  if(st.answered===null && !attempt){
+    html+=`<div class="card"><div class="sec-label">Hint</div>
+    ${p.hints.slice(0,st.hints).map((h,i)=>`<p>Hint ${i+1}: ${h}</p>`).join("")}
+    ${st.hints<p.hints.length?`<button class="btn ghost sm" onclick="useHint('${id}')">Buka Hint ${st.hints+1}</button>`:'<p class="muted">Semua hint sudah dibuka.</p>'}</div>`;
+  } else {
+    const ss=strategiesForProblem(p);
+    html+=`<div class="card"><div class="sec-label">Full Solution</div><p style="white-space:pre-wrap">${p.exp}</p></div>`;
+    if(ss.length) html+=`<div class="card"><div class="sec-label">Strategi terkait</div>
+      <p class="muted">Setelah melihat solusi, cek strategi yang bisa kamu bawa ke soal lain.</p>
+      ${ss.map(s=>`<button class="btn ghost sm" style="margin:3px" onclick="nav('strategy','${s.id}')">${s.title}</button>`).join("")}
+    </div>`;
+  }
+  return html;
+}
+window.useHint=function(id){probState[id].hints++;render();};
+window.answerProblem=function(id,i){
+  const p=PROBLEMS.find(x=>x.id===id);
+  const correct=i===p.ans;
+  const st=probState[id]||{hints:0};
+  const record={topic:p.topic,subtopic:p.subtopic,diff:p.diff,correct,chosen:i,hintsUsed:st.hints||0,date:Date.now()};
+  U.problemAttempts[id]=record;
+  U.xp+=correct?(p.diff>=3?40:20):5;
+  probState[id]={hints:st.hints||0,answered:record};
+  if(!correct){
+    showErrorPicker(id,p);
+    return;
+  }
+  save(); render();
+};
+function showErrorPicker(id,p){
+  document.getElementById("app").innerHTML=`
+  <div class="card"><h3>Jawaban salah. Menurutmu, ini kesalahan apa?</h3>
+  ${["Concept Error","Strategy Error","Calculation Error","Misread Problem","Careless Error"].map(t=>
+    `<button class="opt" onclick="logError('${id}','${t}')">${t}</button>`).join("")}
+  </div>`;
+}
+window.logError=function(id,type){
+  const p=PROBLEMS.find(x=>x.id===id);
+  U.errors.push({problemId:id,topic:p.topic,subtopic:p.subtopic,type,date:new Date().toISOString()});
+  save(); nav('problem',id); render();
+};
+
+function viewProgress(){
+  const lv=level(); const acc=accuracyOverall();
+  return `
+  <h2>Progress</h2>
+  <div class="grid4">
+    <div class="card"><div class="muted">Level</div><h3>${lv.i} — ${lv.name}</h3></div>
+    <div class="card"><div class="muted">XP</div><h3>${U.xp}</h3></div>
+    <div class="card"><div class="muted">Problems Solved</div><h3>${solvedCount()}</h3></div>
+    <div class="card"><div class="muted">Accuracy</div><h3>${acc===null?'—':acc+'%'}</h3></div>
+  </div>
+  <div class="card"><div class="muted">Concepts Mastered</div><h3>${conceptsMasteredCount()} / ${CONCEPTS.length}</h3></div>
+  <div class="card"><h3>Progress per Bidang</h3>
+  ${TOPICS.map(t=>{const a=topicAccuracy(t);return `<div style="margin-bottom:10px"><div class="muted">${TOPIC_LABEL[t]} — ${a===null?'Belum ada data':a+'%'}</div>${bar(a||0)}</div>`;}).join("")}
+  </div>
+  <div class="card"><h3>Recommendation</h3>
+  ${recommendations().map(r=>`<div class="next-action" style="padding:8px 0;border-bottom:1px solid var(--line)">
+    <p style="margin:0">${r.reason}</p>
+    ${r.action==="concept"&&r.subtopic?`<button class="btn sm ghost" onclick="nav('concept','${(CONCEPTS.find(c=>c.title===r.subtopic)||{}).id||''}')">Pelajari</button>`:
+      r.action==="strategy"?`<button class="btn sm ghost" onclick="nav('strategy')">Strategi</button>`:
+      `<button class="btn sm ghost" onclick="${r.topic?`nav('problem')`:`startDiagnostic()`}">${r.topic?'Latihan':'Mulai Diagnostic'}</button>`}
+  </div>`).join("")}
+  </div>`;
+}
+
+function viewErrors(){
+  if(!U.errors.length) return `<div class="card"><h2>Error Log</h2><p class="muted">Belum ada kesalahan yang tercatat. Kerjakan beberapa problem untuk mulai membangun Error Log.</p></div>`;
+  const stats=errorStats();
+  return `
+  <h2>Error Log</h2>
+  <div class="card"><h3>Your Error Pattern</h3>
+  ${Object.entries(stats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="muted">${k} — ${v}</div>${bar(100*v/U.errors.length,'var(--bad)')}`).join("")}
+  </div>
+  <div class="card"><table><tr><th>Problem</th><th>Topic</th><th>Subtopic</th><th>Error</th><th></th></tr>
+  ${U.errors.slice().reverse().map(e=>`<tr><td>${e.problemId}</td><td>${TOPIC_LABEL[e.topic]}</td><td>${e.subtopic}</td><td>${e.type}</td>
+  <td><button class="btn sm ghost" onclick="nav('problem','${e.problemId}')">Review</button></td></tr>`).join("")}
+  </table></div>`;
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  renderNav();
+  const {r,p}=currentRoute();
+  const views={home:viewHome,diagnostic:viewDiagnostic,path:viewPath,
+    concept:()=>viewConcept(p),problem:()=>viewProblem(p),strategy:()=>viewStrategy(p),
+    progress:viewProgress,errors:viewErrors};
+  document.getElementById("app").innerHTML=views[r]();
+}
+render();
+</script>
+</body>
+</html>
